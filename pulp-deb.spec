@@ -7,7 +7,7 @@
 %define inst_prefix pulp_deb
 
 Name: pulp-deb
-Version: 1.6.0
+Version: 1.6.1
 Release: 0.4.rc%{?dist}
 Summary: Support for Debian packages in the Pulp platform
 Group: Development/Languages

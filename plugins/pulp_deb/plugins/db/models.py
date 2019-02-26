@@ -82,6 +82,12 @@ class DebPackage(FileContentUnit):
     def from_metadata(cls, unit_md, user_metadata=None):
         ignored = set(['filename'])
 
+        # If Depends from repo metadata are not already represented
+        # as a list of dict they need to be parsed.
+        depends = unit_md.get('Depends')
+        if depends and not isinstance(depends, list):
+            unit_md = cls._parse_dependencies(unit_md)
+
         metadata = dict()
         for attr, fdef in cls._fields.items():
             if attr == 'id' or attr.startswith('_'):
@@ -153,14 +159,19 @@ class DebPackage(FileContentUnit):
         except debfile.ArError as e:
             raise InvalidPackageError(str(e))
         ret = dict(deb.debcontrol())
-        deps = debpkg.DebPkgRequires(**ret)
+        return cls._parse_dependencies(ret)
+
+    @classmethod
+    def _parse_dependencies(cls, pkg):
+        pkg = dict(pkg)
+        deps = debpkg.DebPkgRequires(**pkg)
         # Munge relation fields
 
         for fname in cls.REL_FIELDS:
             vals = deps.relations.get(fname, [])
             vals = DependencyParser.parse(vals)
-            ret[fname] = vals
-        return ret
+            pkg[fname] = vals
+        return pkg
 
 
 class DebComponent(ContentUnit):

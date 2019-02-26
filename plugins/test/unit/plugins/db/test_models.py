@@ -26,6 +26,13 @@ class TestModel(testbase.TestCase):
             'checksum': '177937795c2ef5b381718aefe2981ada4e8cfe458226348d87a6f5b100a4612b',  # noqa
             'checksumtype': 'sha256',
             })
+        self.assertEquals(pkg.depends, [{'name': 'lsb-base', 'version': '3.0-6', 'flag': 'GE'},
+                                        {'name': 'libaudit1', 'version': '1:2.2.1', 'flag': 'GE'},
+                                        {'name': 'libc6', 'version': '2.24', 'flag': 'GT'},
+                                        {'name': 'libc6', 'version': '2.25', 'flag': 'LT'},
+                                        {'name': 'libcap2', 'version': '1:2.10', 'flag': 'GE'},
+                                        {'name': 'libselinux1', 'version': '2.0.82', 'flag': 'GE'},
+                                        {'name': 'init-system-helpers', 'version': '1.18~', 'flag': 'GE'}])
 
     def test_from_file_different_checksumtype(self):
         metadata = dict(checksumtype='sha1',
@@ -101,3 +108,20 @@ class TestModel(testbase.TestCase):
                 "Depends: {}".format(strdep)))[0]
             self.assertEquals(debdep, pkg.relations['depends'])
             self.assertEquals(pulpdep, models.DependencyParser.parse(debdep))
+
+    def test_from_metadata_depends(self):
+        """ Confirm that depends string is parsed into a list of dicts """
+        pkg = dict(Depends='depa, depb',
+                   Version='03.13.00',
+                   Package='foo',
+                   Architecture='amd64',
+                   checksumtype='sha256',
+                   checksum='6fa7921c574d726daf3e36729a3426aa58b93145533a4b5da954fe36a3')
+
+        pkg_cls = models.DebPackage.from_metadata(pkg)
+        self.assertEqual(pkg_cls.depends, [{'name': 'depa'}, {'name': 'depb'}])
+
+        pkg['Depends'] = 'python2.7 (>= 2.7.11-1~), libpython-stdlib (= 2.7.11-1)'
+        pkg_cls = models.DebPackage.from_metadata(pkg)
+        self.assertEqual(pkg_cls.depends, [{'name': 'python2.7', 'version': '2.7.11-1~', 'flag': 'GE'},
+                                           {'name': 'libpython-stdlib', 'version': '2.7.11-1', 'flag': 'EQ'}])

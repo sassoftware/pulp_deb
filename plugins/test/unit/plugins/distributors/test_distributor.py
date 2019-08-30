@@ -382,3 +382,30 @@ class TestDistributorRemoved(BaseTest):
         self.assertFalse(os.path.exists(repo_dir))
         self.assertFalse(os.path.islink(http_dir))
         self.assertFalse(os.path.islink(https_dir))
+
+
+class TestPublishEmptyRepo(PublishRepoMixIn, BaseTest):
+    """
+    Empty repositories (no packages) should still publish a valid Release file
+    allong with empty Packages files.
+    """
+    Sample_Units = {
+        models.DebPackage: [],
+        models.DebComponent: [
+            dict(
+                name='main',
+                release='stable',
+                id='mainid',
+            ),
+        ],
+        models.DebRelease: [
+            dict(
+                codename='stable',
+                id='stableid',
+            ),
+        ],
+    }
+    Architectures = ['all']
+    default_release = False
+    release_file_count = 1
+    packages_file_count = 1

@@ -298,10 +298,6 @@ class MetadataStep(PluginStep):
             package.sha256 = checksums['sha256']
             package.md5sum = checksums['md5sum']
 
-        # Do nothing, if the repository is empty (review this behaviour):
-        if len(unit_dict) == 0:
-            return
-
         # If there are no release_units (old style repo) publish as 'stable/main':
         if len(release_units) == 0:
             default_release = models.DebRelease(suite='stable')

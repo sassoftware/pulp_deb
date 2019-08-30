@@ -9,11 +9,11 @@ GLOBAL:
       Verified : on
       Encoding: off
       EOL : on
-      Issue-Tracking : on
+      Issue-Tracking : off
       Template-ERB-Review: off
    validator-opts:
       Encoding:
          gitattribute-check-level: 1
       Issue-Tracking:
          Fixid : off
-         Jira : on
+         Jira : off
